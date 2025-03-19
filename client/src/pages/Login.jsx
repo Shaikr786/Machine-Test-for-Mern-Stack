@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
@@ -10,11 +10,20 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already logged in
-  if (isAuthenticated && user) {
-    navigate("/dashboard");
-    return null;
-  }
+  // ✅ Handle role-based redirection
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log("🔹 Checking role for redirection:", user.role);
+      
+      if (user.role === "admin") {
+        console.log("✅ Redirecting Admin to /admin-dashboard");
+        navigate("/admin-dashboard");
+      } else {
+        console.log("✅ Redirecting Agent to /agent-dashboard");
+        navigate("/agent-dashboard");
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +33,6 @@ const Login = () => {
 
     if (res.success) {
       toast.success("Login successful!");
-      navigate("/dashboard");
     } else {
       toast.error(res.message);
     }
