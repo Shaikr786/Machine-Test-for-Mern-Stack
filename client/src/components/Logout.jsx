@@ -1,17 +1,21 @@
-import { useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Logout = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const handleLogout = () => {
     logout();
-    navigate("/");
-  }, [logout, navigate]);
+    navigate('/login');
+  };
 
-  return <p>Logging out...</p>;
+  return (
+    <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded">
+      Logout
+    </button>
+  );
 };
 
 export default Logout;
