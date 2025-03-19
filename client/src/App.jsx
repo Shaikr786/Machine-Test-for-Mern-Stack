@@ -25,7 +25,7 @@ function App() {
             path="/*" 
             element={
               <>
-                <Navbar /> {/* ✅ Navbar appears in all protected pages */}
+                {/* <Navbar /> ✅ Navbar appears in all protected pages */}
                 <Routes>
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="admin-dashboard" element={<AdminDashboard />} />

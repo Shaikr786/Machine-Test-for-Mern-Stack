@@ -2,33 +2,30 @@ import React from "react";
 
 const SidebarComponent = ({ activeTab, setActiveTab }) => {
   return (
-    <div className="w-64 bg-blue-600 text-white h-full p-4">
-      <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
+    <div className="w-64 bg-gray-900 text-white h-full p-6 shadow-lg border-r border-gray-700">
+      {/* Sidebar Title */}
+      <h2 className="text-2xl font-bold text-orange-400 mb-6 text-center">Admin Panel</h2>
+
+      {/* Sidebar Menu */}
       <ul className="space-y-4">
-        <li
-          className={`cursor-pointer ${activeTab === "dashboard" ? "font-bold" : ""}`}
-          onClick={() => setActiveTab("dashboard")}
-        >
-          Dashboard
-        </li>
-        <li
-          className={`cursor-pointer ${activeTab === "agents" ? "font-bold" : ""}`}
-          onClick={() => setActiveTab("agents")}
-        >
-          Agents Management
-        </li>
-        <li
-          className={`cursor-pointer ${activeTab === "tasks" ? "font-bold" : ""}`}
-          onClick={() => setActiveTab("tasks")}
-        >
-          Tasks Management
-        </li>
-        <li
-          className={`cursor-pointer ${activeTab === "csv-upload" ? "font-bold" : ""}`}
-          onClick={() => setActiveTab("csv-upload")}
-        >
-          CSV Upload & Distribution
-        </li>
+        {[
+          { name: "Dashboard", id: "dashboard" },
+          { name: "Agents Management", id: "agents" },
+          { name: "Tasks Management", id: "tasks" },
+          { name: "CSV Upload & Distribution", id: "csv-upload" },
+        ].map((tab) => (
+          <li
+            key={tab.id}
+            className={`cursor-pointer px-4 py-2 rounded-md transition-all duration-300 ${
+              activeTab === tab.id
+                ? "bg-orange-500 text-gray-900 font-bold shadow-md"
+                : "hover:bg-gray-700 hover:text-orange-300"
+            }`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.name}
+          </li>
+        ))}
       </ul>
     </div>
   );

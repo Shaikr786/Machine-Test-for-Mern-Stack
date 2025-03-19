@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import api from "../utils/api"; // Importing API instance
+import api from "../utils/api";
 
 const AgentsManagement = () => {
   const [agents, setAgents] = useState([]);
   const [newAgent, setNewAgent] = useState({ name: "", email: "", mobile: "", password: "" });
-  const [errors, setErrors] = useState({});  // To store validation errors
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     fetchAgents();
@@ -12,43 +12,32 @@ const AgentsManagement = () => {
 
   const fetchAgents = async () => {
     try {
-      console.log("Fetching agents...");
       const { data } = await api.get("/agents");
-      console.log("Fetched agents data:", data);  // Log the response data
       setAgents(data);
     } catch (error) {
       console.error("Error fetching agents", error);
     }
   };
-  
 
   const handleAddAgent = async () => {
     const validationErrors = validateForm(newAgent);
     setErrors(validationErrors);
-  
+    console.log(errors);
+
     if (Object.keys(validationErrors).length === 0) {
-      console.log("Adding agent:", newAgent);
       try {
         const response = await api.post("/agents", newAgent);
-        console.log("Agent added successfully:", response.data);
-        
-        // Instead of fetching the agents again, directly add the new agent to the state
         setAgents((prevAgents) => [...prevAgents, response.data.agent]);
-  
         setNewAgent({ name: "", email: "", mobile: "", password: "" });
       } catch (error) {
         console.error("Error adding agent", error);
       }
-    } else {
-      console.log("Validation errors:", validationErrors);
     }
   };
-  
+
   const handleDeleteAgent = async (id) => {
-    console.log("Deleting agent with ID:", id);  // Log agent deletion
     try {
       await api.delete(`/agents/${id}`);
-      console.log("Agent deleted successfully.");  // Log successful agent deletion
       fetchAgents();
     } catch (error) {
       console.error("Error deleting agent", error);
@@ -57,100 +46,94 @@ const AgentsManagement = () => {
 
   const validateForm = (formData) => {
     const errors = {};
-
-    // Name Validation
-    if (!formData.name) {
-      errors.name = "Name is required.";
-    } else if (formData.name.length < 2) {
-      errors.name = "Name must be at least 2 characters long.";
-    }
-
-    // Email Validation
-    if (!formData.email) {
-      errors.email = "Email is required.";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Please enter a valid email address.";
-    }
-
-    // Mobile Validation (Only digits)
-    if (!formData.mobile) {
-      errors.mobile = "Mobile number is required.";
-    } else if (!/^\d+$/.test(formData.mobile)) {
-      errors.mobile = "Please enter a valid mobile number (digits only).";
-    }
-
-    // Password Validation
-    if (!formData.password) {
-      errors.password = "Password is required.";
-    } else if (formData.password.length < 6) {
-      errors.password = "Password must be at least 6 characters long.";
-    }
-
+    if (!formData.name) errors.name = "Name is required.";
+    if (!formData.email) errors.email = "Email is required.";
+    if (!formData.mobile) errors.mobile = "Mobile number is required.";
+    if (!formData.password) errors.password = "Password is required.";
     return errors;
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Agents Management</h2>
+    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold text-orange-400 mb-6">Agents Management</h2>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Name"
-          value={newAgent.name}
-          onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
-        />
-        {errors.name && <p className="text-red-500">{errors.name}</p>}
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={newAgent.email}
-          onChange={(e) => setNewAgent({ ...newAgent, email: e.target.value })}
-        />
-        {errors.email && <p className="text-red-500">{errors.email}</p>}
-
-        <input
-          type="text"
-          placeholder="Mobile"
-          value={newAgent.mobile}
-          onChange={(e) => setNewAgent({ ...newAgent, mobile: e.target.value })}
-        />
-        {errors.mobile && <p className="text-red-500">{errors.mobile}</p>}
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={newAgent.password}
-          onChange={(e) => setNewAgent({ ...newAgent, password: e.target.value })}
-        />
-        {errors.password && <p className="text-red-500">{errors.password}</p>}
-
-        <button onClick={handleAddAgent}>Add Agent</button>
+      <div className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
+        <h3 className="text-lg font-semibold mb-3 text-blue-400">Add New Agent</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            type="text"
+            placeholder="Name"
+            className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:border-blue-400"
+            value={newAgent.name}
+            onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:border-blue-400"
+            value={newAgent.email}
+            onChange={(e) => setNewAgent({ ...newAgent, email: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Mobile"
+            className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:border-blue-400"
+            value={newAgent.mobile}
+            onChange={(e) => setNewAgent({ ...newAgent, mobile: e.target.value })}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:border-blue-400"
+            value={newAgent.password}
+            onChange={(e) => setNewAgent({ ...newAgent, password: e.target.value })}
+          />
+        </div>
+        <button
+          className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg w-full"
+          onClick={handleAddAgent}
+        >
+          Add Agent
+        </button>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Mobile</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {agents.map((agent) => (
-            <tr key={agent._id}>
-              <td>{agent.name}</td>
-              <td>{agent.email}</td>
-              <td>{agent.mobile}</td>
-              <td>
-                <button onClick={() => handleDeleteAgent(agent._id)}>Delete</button>
-              </td>
+      <div className="overflow-auto">
+        <table className="w-full border-collapse bg-gray-800 text-white rounded-lg shadow-lg">
+          <thead>
+            <tr className="bg-gray-700 text-left text-blue-300 uppercase">
+              <th className="p-3">Name</th>
+              <th className="p-3">Email</th>
+              <th className="p-3">Mobile</th>
+              <th className="p-3">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {agents.length > 0 ? (
+              agents.map((agent) => (
+                <tr key={agent._id} className="border-b border-gray-600 hover:bg-gray-700 transition">
+                  <td className="p-3">{agent.name}</td>
+                  <td className="p-3">{agent.email}</td>
+                  <td className="p-3">{agent.mobile}</td>
+                  <td className="p-3">
+                    <button
+                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md"
+                      onClick={() => handleDeleteAgent(agent._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center p-4 text-gray-400">
+                  No agents available.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
