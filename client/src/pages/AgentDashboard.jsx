@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import NavbarComponent from "../components/NavbarComponent";
 
 const AgentDashboard = () => {
   const [tasks, setTasks] = useState([]); // Ensure initial state is an array
@@ -53,6 +54,10 @@ const AgentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="flex-1 flex flex-col">
+        {/* Navbar */}
+        <NavbarComponent />
+
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-center text-orange-400">Agent Dashboard</h1>
         <h2 className="mt-6 text-xl font-semibold text-orange-300 text-center">My Tasks</h2>
@@ -84,6 +89,7 @@ const AgentDashboard = () => {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

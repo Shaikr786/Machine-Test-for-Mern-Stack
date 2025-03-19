@@ -27,7 +27,7 @@ const NavbarComponent = () => {
   return (
     <nav className="bg-white/20 backdrop-blur-md shadow-md p-4 flex justify-between items-center border-b border-gray-300 relative">
       {/* Left Section - Branding */}
-      <h1 className="text-2xl font-bold text-black tracking-wide">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold text-black tracking-wide"> Dashboard</h1>
 
       {/* Right Section - User Info */}
       <div className="flex items-center gap-6 relative">

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
+
 const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -19,8 +20,28 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Frontend validations
+    if (!formData.name || !formData.email || !formData.password) {
+      toast.error("All fields are required!");
+      return;
+    }
+  
+    // Email validation (simple regex)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+  
+    // Password validation (minimum length of 6 characters)
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+  
     const res = await register(formData);
-
+  
     if (res.success) {
       toast.success("Registration successful!");
       
@@ -34,6 +55,7 @@ const Register = () => {
       toast.error(res.message);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-purple-800">

@@ -37,6 +37,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (formData) => {
+    try {
+      const res = await api.post("/auth/register", formData);
+      const { token, user } = res.data;
+  
+      if (!token || !user) throw new Error("Invalid registration response");
+  
+      localStorage.setItem("token", token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  
+      setUser(user);
+      setIsAuthenticated(true);
+  
+      return { success: true, user };
+    } catch (error) {
+      console.error("❌ Registration error:", error.response?.data || error.message);
+      return { success: false, message: error.response?.data?.message || "Registration failed" };
+    }
+  };
+  
+
   const login = async (credentials) => {
     try {
       const res = await api.post("/auth/login", credentials);
@@ -65,7 +86,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading, register }}>
       {children}
     </AuthContext.Provider>
   );
