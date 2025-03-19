@@ -1,74 +1,92 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-// Login
+// Generate Token
+const generateToken = (user) => {
+    return jwt.sign(
+        { id: user._id, name: user.name, email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+    );
+};
+
+// Login Controller
 const login = async (req, res) => {
     try {
-        console.log("Login Request Body:", req.body); // ✅ Log request data
+        // console.log("Login Request Body:", req.body);
         const { email, password } = req.body;
-        
-        const user = await User.findOne({ email });
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
+        const user = await User.findOne({ email: { $regex: new RegExp(email, "i") } });
 
         if (!user) {
-            console.log("User not found");
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            console.log("Invalid password");
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        console.log("Logged-in User:", user); // ✅ Ensure name is retrieved
+        const token = generateToken(user);
 
-        const token = jwt.sign(
-            { id: user._id, name: user.name, email: user.email, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "1d" }
-        );
+        res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 86400000 });
 
-        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+        res.json({ 
+            success: true,
+            message: "Login successful",
+            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            token
+        });
+
     } catch (error) {
         console.error("Login error:", error);
         res.status(500).json({ message: "Server error" });
     }
 };
 
-  
-
-// Register
+// Register Controller
 const register = async (req, res) => {
     try {
-        console.log("Register Request Body:", req.body); // ✅ Check if name is coming
-        
-        const { name, email, password, role = 'agent' } = req.body;
+        // console.log("Register Request Body:", req.body);
 
-        if (await User.findOne({ email })) {
-            return res.status(400).json({ message: 'User already exists' });
+        const { name, email, password, role = "agent" } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
         }
 
-        const user = new User({ name, email, password, role }); 
+        if (await User.findOne({ email })) {
+            return res.status(400).json({ message: "User already exists" });
+        }
+
+        const user = new User({ name, email, password, role });
         await user.save();
 
-        console.log("Saved User:", user); // ✅ Log saved user
+        const token = generateToken(user);
 
-        res.status(201).json({ 
-            message: 'User registered successfully', 
-            user: { id: user._id, name: user.name, email: user.email, role: user.role } 
+        res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", maxAge: 86400000 });
+
+        res.status(201).json({
+            success: true,
+            message: "User registered successfully",
+            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            token
         });
+
     } catch (error) {
-        console.error('Register error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("Register error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };
 
-  
-
-// Get Profile (Protected)
+// Get User Profile (Protected)
 const getUserProfile = async (req, res) => {
     try {
-        console.log("User ID from token:", req.user.id); // ✅ Check user ID from token
+        // console.log("User ID from token:", req.user.id);
 
         const user = await User.findById(req.user.id).select("-password");
 
@@ -76,14 +94,12 @@ const getUserProfile = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        console.log("Retrieved Profile:", user); // ✅ Ensure name is retrieved
+        res.json({ success: true, user });
 
-        res.json({ id: user._id, name: user.name, email: user.email, role: user.role });
     } catch (error) {
         console.error("Profile error:", error);
         res.status(500).json({ message: "Server error" });
     }
 };
 
-  
 module.exports = { login, register, getUserProfile };

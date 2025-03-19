@@ -17,9 +17,10 @@ dotenv.config();
 // Initialize express app
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// ✅ Middleware (Make Sure These Are Before Routes)ts
+app.use(cors()); // Enables cross-origin requests
+
+app.use(express.json());  // Parses incoming JSON reques
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
