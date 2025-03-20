@@ -103,6 +103,21 @@ const updateAgent = async (req, res) => {
   }
 };
 
+// Toggle agent active status
+const toggleAgentStatus = async (req, res) => {
+  try {
+    const agent = await Agent.findById(req.params.id);
+    if (!agent) return res.status(404).json({ message: 'Agent not found' });
+
+    agent.isActive = !agent.isActive;
+    await agent.save();
+
+    res.json({ message: 'Agent status updated', agent });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // Delete agent
 const deleteAgent = async (req, res) => {
   try {
@@ -120,6 +135,7 @@ module.exports = {
   getAllAgents,
   getAgentById,
   createAgent,
+  toggleAgentStatus,
   updateAgent,
   deleteAgent
 };
