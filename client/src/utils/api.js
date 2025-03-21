@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Use environment variable for API base URL
 const api = axios.create({
-  baseURL:  "http://localhost:5000/api",
+  baseURL:  "https://machine-test-for-mern-stack.vercel.app/api",
   headers: {
     "Content-Type": "application/json",
   },

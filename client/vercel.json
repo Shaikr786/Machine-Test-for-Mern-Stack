@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "https://machine-test-for-mern-stack.vercel.app/api/$1"
+      }
+    ]
+  }
+  
