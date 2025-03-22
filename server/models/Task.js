@@ -1,48 +1,46 @@
 const mongoose = require('mongoose');
-const User = require('./User');
 
 const taskSchema = new mongoose.Schema({
-    firstName: {
-      type: String,
-      required: [true, "First name is required"],
-      trim: true,
-      minlength: [2, "First name must be at least 2 characters long"],
-      maxlength: [50, "First name cannot exceed 50 characters"]
-    },
-    phone: {
-      type: String,
-      required: [true, "Phone number is required"],
-      trim: true,
-      match: [/^\+\d{10,15}$/, "Phone number must start with '+' followed by 10 to 15 digits"] // Updated validation
-    },
-    notes: {
-      type: String,
-      trim: true,
-      maxlength: [500, "Notes cannot exceed 500 characters"]
-    },
-    agent: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Agent',
-      default: null // Task starts unassigned
-    },
-    uploadedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Admin user who created/uploaded the task
-      required: [true, "UploadedBy (admin) is required"]
-    },
-    uploadDate: {
-      type: Date,
-      default: Date.now
-    }
-  });
-  
-// ✅ Ensure `firstName` is saved with proper capitalization
+  firstName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  phone: {
+    type: String,
+    required: true,
+    unique: true,  // Ensure no duplicate phone numbers
+    match: [/^\+\d{1,3}\d{6,14}$/, "Phone number must be in international format (e.g., +14155552675)"]
+  },
+  notes: {
+    type: String,
+    trim: true
+  },
+  agent: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Agent',
+    required: true
+  },
+  uploadedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
+}, { timestamps: true });  // 🚀 Automatically add createdAt & updatedAt
+
+// ✅ Ensure `firstName` is properly capitalized
 taskSchema.pre('save', function (next) {
   if (this.firstName) {
-    this.firstName = this.firstName.charAt(0).toUpperCase() + this.firstName.slice(1);
+    this.firstName = this.firstName
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
   next();
 });
+
+// 🚀 Add an index for faster queries
+taskSchema.index({ phone: 1, agent: 1 });
 
 const Task = mongoose.model('Task', taskSchema);
 module.exports = Task;
