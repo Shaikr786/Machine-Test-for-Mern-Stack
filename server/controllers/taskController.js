@@ -160,6 +160,7 @@ const deleteTask = async (req, res) => {
 };
 
 
+const streamifier = require("streamifier");
 
 const uploadCSV = async (req, res) => {
   try {
@@ -167,21 +168,18 @@ const uploadCSV = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const filePath = req.file.path;
     const fileExtension = req.file.originalname.split(".").pop().toLowerCase();
-
     if (!["csv", "xlsx", "xls"].includes(fileExtension)) {
-      fs.unlinkSync(filePath);
-      return res.status(400).json({ message: "Invalid file format. Only CSV/XLSX are allowed." });
+      return res.status(400).json({ message: "Invalid file format. Only CSV/XLSX/XLS are allowed." });
     }
 
     const uploadedBy = req.user.id;
     let parsedTasks = [];
 
     if (fileExtension === "csv") {
-      // ✅ Parse CSV File
+      // ✅ Parse CSV File from Buffer
       const results = [];
-      fs.createReadStream(filePath)
+      streamifier.createReadStream(req.file.buffer)
         .pipe(csv())
         .on("data", (row) => {
           if (!row.firstName?.trim() || !isValidPhone(row.phone)) return;
@@ -194,21 +192,19 @@ const uploadCSV = async (req, res) => {
           });
         })
         .on("end", async () => {
-          fs.unlinkSync(filePath); // Delete file after processing
           if (results.length === 0) {
             return res.status(400).json({ message: "Invalid or empty data in CSV" });
           }
           await processTasks(results, res, req);
         })
         .on("error", (error) => {
-          fs.unlinkSync(filePath);
           console.error("CSV Parsing Error:", error);
           res.status(500).json({ message: "Error processing CSV file" });
         });
     } else {
-      // ✅ Parse Excel File
+      // ✅ Parse Excel File from Buffer
       try {
-        const workbook = xlsx.readFile(filePath);
+        const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
         const sheetName = workbook.SheetNames[0];
         const excelData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
@@ -221,13 +217,11 @@ const uploadCSV = async (req, res) => {
             uploadedBy,
           }));
 
-        fs.unlinkSync(filePath); // Delete file after processing
         if (parsedTasks.length === 0) {
           return res.status(400).json({ message: "Invalid or empty data in Excel file" });
         }
         await processTasks(parsedTasks, res, req);
       } catch (error) {
-        fs.unlinkSync(filePath);
         console.error("Excel Parsing Error:", error);
         res.status(500).json({ message: "Error processing Excel file" });
       }
@@ -237,6 +231,7 @@ const uploadCSV = async (req, res) => {
     res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
+
 
 // ✅ Distribute tasks among active agents
 const processTasks = async (tasks, res, req) => {

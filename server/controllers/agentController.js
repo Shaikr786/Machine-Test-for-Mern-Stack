@@ -19,10 +19,7 @@ const getAllAgents = async (req, res) => {
   }
 };
 
-
-
   
-
 // Get single agent
 const getAgentById = async (req, res) => {
   try {

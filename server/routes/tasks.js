@@ -1,11 +1,11 @@
-const express = require("express"); // Import Express framework to create a router
+const express = require("express"); // Import Express framework
 const multer = require("multer"); // Import Multer for file uploads
 const {
   getAllTasks,
   getTasksForAgent,
   createTask,
-  updateTask,  // ✅ Add update function
-  deleteTask,  // ✅ Add delete function
+  updateTask,
+  deleteTask,
   uploadCSV
 } = require("../controllers/taskController"); // Import task controller functions
 
@@ -13,13 +13,13 @@ const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware
 
 const router = express.Router(); // Create an Express router instance
 
-// ✅ Configure Multer for file uploads (used for CSV uploads)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"), // Save uploaded files to the "uploads/" directory
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`) // Rename file with timestamp to avoid conflicts
-});
 // ✅ Protect all task-related routes with authentication
-router.use(authMiddleware); 
+router.use(authMiddleware);
+
+// ✅ Configure Multer for memory storage (fixes Vercel issue)
+const upload = multer({
+  storage: multer.memoryStorage(), // Store files in memory instead of disk
+}).single("file"); // Ensure it matches the key used in Postman/FormData
 
 // ✅ Role-based protected routes
 
@@ -38,20 +38,8 @@ router.put("/:id", authorizeRoles("admin"), updateTask);
 // 5️⃣ Delete a task by ID (Admin only)
 router.delete("/:id", authorizeRoles("admin"), deleteTask);
 
-// Configure multer for file uploads
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: "./uploads",
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + "-" + file.originalname);
-    },
-  }),
-}).single("file"); // This must match Postman key!
-
-
-// 6️⃣ Upload CSV file to bulk import tasks (Admin only) 
+// 6️⃣ Upload CSV file to bulk import tasks (Admin only)
 router.post("/upload", authorizeRoles("admin"), upload, uploadCSV);
-
 
 // ✅ Export the router so it can be used in the main app
 module.exports = router;
