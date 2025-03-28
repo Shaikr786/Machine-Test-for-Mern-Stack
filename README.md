@@ -1,6 +1,5 @@
 # Machine Test for MERN Stack Developer
 
-
 This is a MERN stack project with full CRUD functionality and role-based authentication. It includes a backend built with Express.js, MongoDB for the database, and a frontend using React.js.
 
 ## Features
@@ -79,10 +78,13 @@ npm start
 - **PUT /api/tasks/:id**: Update task details.
 - **DELETE /api/tasks/:id**: Delete a task.
 
+## Demo Video & Deployment
+
+- **Demo Video:** [Watch here](https://youtu.be/MujxtF0s--M)
+- **Live Deployment:** [View here](https://machine-test-for-mern-stack.vercel.app/)
+
 ## Conclusion
 
 By implementing a clean and scalable codebase, the goal was to ensure maintainability and flexibility for future enhancements. The use of Vite for the frontend optimizes the development process, providing faster performance and a better development experience. Overall, the project exemplifies a practical approach to full-stack development with a focus on clear architecture and efficient workflows.
 
----
 
-This README structure can be further customized based on specific details from your project.
